@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotoMatch India – AI Bike Recommendation Engine</title>
+  <meta name="description" content="Find your perfect motorcycle in India using our AI-powered recommendation engine powered by TOPSIS, AHP, Fuzzy Logic, and KNN mathematical models." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-canvas">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <canvas id="particleCanvas"></canvas>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="brand-icon">⚙</span>
+        <span class="brand-name">MotoMatch<span class="brand-accent"> India</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="#hero" class="nav-link">Home</a>
+        <a href="#models" class="nav-link">Models</a>
+        <a href="#engine" class="nav-link">Recommender</a>
+        <a href="#results" class="nav-link">Results</a>
+        <a href="bike_recommendation_model.pdf" class="nav-cta" target="_blank" download>📄 PDF Report</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>5 Mathematical Models · 35+ Indian Bikes · Real Specifications</span>
+      </div>
+      <h1 class="hero-title">
+        Find Your <span class="gradient-text">Perfect Bike</span><br/>in India
+      </h1>
+      <p class="hero-subtitle">
+        Powered by TOPSIS, Fuzzy Logic, AHP, KNN & Collaborative Filtering — five mathematical models working in unison to match you to your ideal ride.
+      </p>
+      <div class="hero-actions">
+        <a href="#engine" class="btn-primary">
+          <span>Start Matching</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="#models" class="btn-secondary">Explore Models</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">35+</span>
+          <span class="stat-label">Real Bikes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">5</span>
+          <span class="stat-label">Math Models</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Parameters</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">India Legal</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="bike-showcase">
+        <div class="showcase-ring ring-1"></div>
+        <div class="showcase-ring ring-2"></div>
+        <div class="showcase-ring ring-3"></div>
+        <div class="showcase-center">
+          <div class="bike-emoji-display" id="heroBikeEmoji">🏍️</div>
+          <div class="bike-label" id="heroBikeLabel">KTM 390 Duke</div>
+        </div>
+        <div class="orbit-dot dot-1">⚡</div>
+        <div class="orbit-dot dot-2">🔧</div>
+        <div class="orbit-dot dot-3">📊</div>
+        <div class="orbit-dot dot-4">🎯</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Models Section -->
+  <section class="models-section" id="models">
+    <div class="section-header">
+      <div class="section-badge">Mathematical Foundation</div>
+      <h2 class="section-title">5 Models. One <span class="gradient-text">Perfect Decision.</span></h2>
+      <p class="section-subtitle">Each model evaluates bikes from a different mathematical perspective. The final recommendation is an ensemble of all five.</p>
+    </div>
+    <div class="models-grid">
+      <div class="model-card" data-model="topsis">
+        <div class="model-icon">📐</div>
+        <div class="model-number">01</div>
+        <h3 class="model-name">TOPSIS</h3>
+        <p class="model-full">Technique for Order Preference by Similarity to Ideal Solution</p>
+        <p class="model-desc">Ranks bikes by measuring their distance from the ideal best and worst solutions in normalized decision space.</p>
+        <div class="model-formula">C<sub>i</sub> = d<sup>−</sup><sub>i</sub> / (d<sup>+</sup><sub>i</sub> + d<sup>−</sup><sub>i</sub>)</div>
+        <div class="model-weight-bar"><div class="weight-fill" style="width:25%"></div></div>
+        <span class="model-weight-label">Weight: 25%</span>
+      </div>
+      <div class="model-card" data-model="ahp">
+        <div class="model-icon">⚖️</div>
+        <div class="model-number">02</div>
+        <h3 class="model-name">AHP</h3>
+        <p class="model-full">Analytic Hierarchy Process</p>
+        <p class="model-desc">Derives criterion weights from pairwise comparisons using eigenvector analysis, ensuring mathematically consistent priorities.</p>
+        <div class="model-formula">w = e<sub>max</sub> / Σe<sub>max</sub></div>
+        <div class="model-weight-bar"><div class="weight-fill" style="width:25%"></div></div>
+        <span class="model-weight-label">Weight: 25%</span>
+      </div>
+      <div class="model-card" data-model="fuzzy">
+        <div class="model-icon">🌊</div>
+        <div class="model-number">03</div>
+        <h3 class="model-name">Fuzzy Logic</h3>
+        <p class="model-full">Linguistic Variable Inference System</p>
+        <p class="model-desc">Handles imprecise user preferences using membership functions, converting vague terms like "affordable" into crisp scores.</p>
+        <div class="model-formula">μ(x) = max(0, min(1, (x−a)/(b−a)))</div>
+        <div class="model-weight-bar"><div class="weight-fill" style="width:20%"></div></div>
+        <span class="model-weight-label">Weight: 20%</span>
+      </div>
+      <div class="model-card" data-model="knn">
+        <div class="model-icon">🎯</div>
+        <div class="model-number">04</div>
+        <h3 class="model-name">K-NN</h3>
+        <p class="model-full">K-Nearest Neighbors Similarity</p>
+        <p class="model-desc">Finds the K most similar bikes to user preferences using Euclidean distance in normalized feature space.</p>
+        <div class="model-formula">d(p,q) = √Σ(p<sub>i</sub> − q<sub>i</sub>)²</div>
+        <div class="model-weight-bar"><div class="weight-fill" style="width:15%"></div></div>
+        <span class="model-weight-label">Weight: 15%</span>
+      </div>
+      <div class="model-card" data-model="wsm">
+        <div class="model-icon">📊</div>
+        <div class="model-number">05</div>
+        <h3 class="model-name">WSM</h3>
+        <p class="model-full">Weighted Sum Model</p>
+        <p class="model-desc">Computes a single composite score by multiplying normalized attribute values with their respective importance weights.</p>
+        <div class="model-formula">S<sub>i</sub> = Σ w<sub>j</sub> · a<sub>ij</sub></div>
+        <div class="model-weight-bar"><div class="weight-fill" style="width:15%"></div></div>
+        <span class="model-weight-label">Weight: 15%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recommendation Engine -->
+  <section class="engine-section" id="engine">
+    <div class="section-header">
+      <div class="section-badge">Interactive Engine</div>
+      <h2 class="section-title">Tell Us <span class="gradient-text">Your Preferences</span></h2>
+      <p class="section-subtitle">Adjust the parameters below. Our ensemble model updates in real-time.</p>
+    </div>
+
+    <div class="engine-wrapper">
+      <!-- Left: Form -->
+      <div class="form-panel">
+        <div class="form-group">
+          <label class="form-label">
+            💰 Budget Range
+            <span class="label-value" id="budgetVal">₹1,50,000</span>
+          </label>
+          <input type="range" id="budget" class="slider" min="60000" max="1500000" value="150000" step="5000" />
+          <div class="slider-range">
+            <span>₹60K</span><span>₹15L</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🎯 Primary Purpose</label>
+          <div class="pill-group" id="purposeGroup">
+            <button class="pill active" data-value="commuting" id="purpose-commuting">🏙️ Daily Commute</button>
+            <button class="pill" data-value="touring" id="purpose-touring">🛣️ Long Touring</button>
+            <button class="pill" data-value="sports" id="purpose-sports">🏁 Sports/Track</button>
+            <button class="pill" data-value="adventure" id="purpose-adventure">🏔️ Adventure</button>
+            <button class="pill" data-value="cruiser" id="purpose-cruiser">🌅 Cruiser</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            🔧 Engine Power Preference
+            <span class="label-value" id="powerVal">20 bhp</span>
+          </label>
+          <input type="range" id="power" class="slider" min="7" max="100" value="20" step="1" />
+          <div class="slider-range">
+            <span>7 bhp</span><span>100 bhp</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            ⛽ Mileage Importance
+            <span class="label-value" id="mileageImpVal">Medium</span>
+          </label>
+          <input type="range" id="mileageImp" class="slider" min="1" max="5" value="3" step="1" />
+          <div class="slider-range">
+            <span>Not Important</span><span>Critical</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🧠 Rider Experience</label>
+          <div class="pill-group" id="experienceGroup">
+            <button class="pill active" data-value="beginner" id="experience-beginner">🌱 Beginner</button>
+            <button class="pill" data-value="intermediate" id="experience-intermediate">🔥 Intermediate</button>
+            <button class="pill" data-value="expert" id="experience-expert">⚡ Expert</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            ⚖️ Preferred Weight
+            <span class="label-value" id="weightVal">≤ 180 kg</span>
+          </label>
+          <input type="range" id="bikeWeight" class="slider" min="100" max="300" value="180" step="5" />
+          <div class="slider-range">
+            <span>100 kg</span><span>300 kg</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🏍️ Preferred Segment</label>
+          <div class="pill-group pill-group-2" id="segmentGroup">
+            <button class="pill active" data-value="any" id="segment-any">All</button>
+            <button class="pill" data-value="commuter" id="segment-commuter">Commuter</button>
+            <button class="pill" data-value="naked" id="segment-naked">Naked</button>
+            <button class="pill" data-value="sports" id="segment-sports">Supersport</button>
+            <button class="pill" data-value="adventure" id="segment-adventure">Adventure</button>
+            <button class="pill" data-value="cruiser" id="segment-cruiser">Cruiser</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">🏷️ Brand Preference</label>
+          <div class="pill-group pill-group-3" id="brandGroup">
+            <button class="pill active" data-value="any" id="brand-any">Any Brand</button>
+            <button class="pill" data-value="hero" id="brand-hero">Hero</button>
+            <button class="pill" data-value="honda" id="brand-honda">Honda</button>
+            <button class="pill" data-value="bajaj" id="brand-bajaj">Bajaj</button>
+            <button class="pill" data-value="tvs" id="brand-tvs">TVS</button>
+            <button class="pill" data-value="yamaha" id="brand-yamaha">Yamaha</button>
+            <button class="pill" data-value="ktm" id="brand-ktm">KTM</button>
+            <button class="pill" data-value="royal-enfield" id="brand-royal-enfield">RE</button>
+            <button class="pill" data-value="triumph" id="brand-triumph">Triumph</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            🛣️ Comfort Priority
+            <span class="label-value" id="comfortVal">Medium</span>
+          </label>
+          <input type="range" id="comfort" class="slider" min="1" max="5" value="3" step="1" />
+          <div class="slider-range">
+            <span>Sporty</span><span>Max Comfort</span>
+          </div>
+        </div>
+
+        <button class="recommend-btn" id="recommendBtn" onclick="runRecommendation()">
+          <span class="btn-glow"></span>
+          <span class="btn-text">⚡ Run All 5 Models</span>
+        </button>
+      </div>
+
+      <!-- Right: Model Scores Live Panel -->
+      <div class="live-panel">
+        <div class="live-header">
+          <span class="live-dot"></span>
+          <span>Model Scores — Live</span>
+        </div>
+        <div class="model-scores" id="modelScores">
+          <div class="score-row">
+            <span class="score-name">TOPSIS</span>
+            <div class="score-bar-wrap"><div class="score-bar topsis-bar" id="scoreTopsis" style="width:0%"></div></div>
+            <span class="score-pct" id="scoreTopsisVal">—</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">AHP</span>
+            <div class="score-bar-wrap"><div class="score-bar ahp-bar" id="scoreAhp" style="width:0%"></div></div>
+            <span class="score-pct" id="scoreAhpVal">—</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">Fuzzy</span>
+            <div class="score-bar-wrap"><div class="score-bar fuzzy-bar" id="scoreFuzzy" style="width:0%"></div></div>
+            <span class="score-pct" id="scoreFuzzyVal">—</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">K-NN</span>
+            <div class="score-bar-wrap"><div class="score-bar knn-bar" id="scoreKnn" style="width:0%"></div></div>
+            <span class="score-pct" id="scoreKnnVal">—</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">WSM</span>
+            <div class="score-bar-wrap"><div class="score-bar wsm-bar" id="scoreWsm" style="width:0%"></div></div>
+            <span class="score-pct" id="scoreWsmVal">—</span>
+          </div>
+        </div>
+
+        <div class="ensemble-display" id="ensembleDisplay">
+          <div class="ensemble-label">Ensemble Score</div>
+          <div class="ensemble-value" id="ensembleValue">—</div>
+          <div class="ensemble-bike" id="ensembleBike">Run model to see results</div>
+        </div>
+
+        <div class="computation-log" id="computationLog">
+          <div class="log-header">🔢 Computation Log</div>
+          <div class="log-content" id="logContent">
+            <p class="log-idle">← Set preferences and click Run</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results Section -->
+  <section class="results-section" id="results">
+    <div class="section-header">
+      <div class="section-badge">Recommendations</div>
+      <h2 class="section-title">Your Top <span class="gradient-text">Bike Matches</span></h2>
+      <p class="section-subtitle" id="resultsSubtitle">Run the recommendation engine above to see your personalized results.</p>
+    </div>
+    <div class="results-grid" id="resultsGrid">
+      <div class="results-placeholder">
+        <div class="placeholder-icon">🏍️</div>
+        <p>Your personalized bike recommendations will appear here after running the engine.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dataset Section -->
+  <section class="dataset-section" id="dataset">
+    <div class="section-header">
+      <div class="section-badge">Real Dataset</div>
+      <h2 class="section-title">35+ Indian Bikes — <span class="gradient-text">Real Specifications</span></h2>
+      <p class="section-subtitle">All data sourced from manufacturer websites, BikeWale, ZigWheels, and BikeDecko (2024).</p>
+    </div>
+    <div class="dataset-filters">
+      <button class="filter-btn active" onclick="filterDataset('all')">All</button>
+      <button class="filter-btn" onclick="filterDataset('commuter')">Commuter</button>
+      <button class="filter-btn" onclick="filterDataset('naked')">Naked/Street</button>
+      <button class="filter-btn" onclick="filterDataset('sports')">Sports</button>
+      <button class="filter-btn" onclick="filterDataset('adventure')">Adventure</button>
+      <button class="filter-btn" onclick="filterDataset('cruiser')">Cruiser</button>
+    </div>
+    <div class="dataset-table-wrapper">
+      <table class="dataset-table" id="datasetTable">
+        <thead>
+          <tr>
+            <th>Bike</th>
+            <th>Brand</th>
+            <th>Segment</th>
+            <th>Engine (cc)</th>
+            <th>Power (bhp)</th>
+            <th>Mileage (kmpl)</th>
+            <th>Weight (kg)</th>
+            <th>Price (₹L)</th>
+            <th>ABS</th>
+          </tr>
+        </thead>
+        <tbody id="datasetBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="brand-icon">⚙</span>
+        <span>MotoMatch India</span>
+      </div>
+      <p class="footer-text">Built with 5 mathematical models · All bikes are legal in India · Data from BikeWale, ZigWheels & Manufacturers (2024)</p>
+      <div class="footer-links">
+        <a href="bike_recommendation_model.pdf" target="_blank" download class="footer-link">📄 Download Mathematical PDF</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
