@@ -423,7 +423,7 @@ function triangularMF(x, a, b, c) {
   return (c - x) / (c - b);
 }
 function trapezoidalMF(x, a, b, c, d) {
-  if (x <= a || x >= d) return 0;
+  if (x < a || x > d) return 0;
   if (x >= b && x <= c) return 1;
   if (x < b) return (x - a) / (b - a);
   return (d - x) / (d - c);
@@ -522,7 +522,7 @@ function runKNN(bikes, userPrefs, k = 10) {
     return { bike, distance: dist, score: 1 / (1 + dist) + purposeBonus };
   });
 
-  return distances.sort((a, b) => b.score - a.score).slice(0, k);
+  return distances.sort((a, b) => b.score - a.score);
 }
 
 // ═══════════════════════════════════════════════════════════
