@@ -646,6 +646,145 @@ function runEnsemble(bikes, userPrefs) {
   return { ensemble, ahpResult };
 }
 
+// ═══════════════════════════════════════════════════════════
+//  6. LOGISTIC REGRESSION — Compatibility Classifier
+//     Answers: "Given THIS bike and YOUR preferences,
+//              will YOU like it? (Yes / Likely / Unlikely / No)"
+//
+//  Feature vector (9 features, all normalised to [0, 1]):
+//    f0  Budget fit          — does the price match your budget?
+//    f1  Power match         — how close is bike power to desired?
+//    f2  Mileage score       — mileage × mileage-importance weight
+//    f3  Comfort match       — |bike.comfort - pref.comfort| similarity
+//    f4  Experience fit      — bike suitable for rider level?
+//    f5  Purpose alignment   — tagged for your primary purpose?
+//    f6  Weight compliance   — within your max weight?
+//    f7  ABS safety          — has ABS? (binary, weighted by experience)
+//    f8  Ground clearance    — proportional, matters for adventure riders
+//
+//  Weights (θ) are hand-calibrated to reflect the AHP criterion
+//  priorities (budget > gc > mileage > comfort ≈ experience >
+//  purpose > weight > power). Bias θ0 centres the sigmoid at ~0.5
+//  for a "moderately matching" bike. This is equivalent to training
+//  on a binary label: score ≥ 0.6 in the ensemble → "liked".
+// ═══════════════════════════════════════════════════════════
+
+const LR_THETA = {
+  bias:        -1.40,   // θ0 — offset; tunes the "neutral" threshold
+  budget:       2.80,   // θ1 — largest impact: price must fit
+  power:        1.20,   // θ2 — power preference match
+  mileage:      1.60,   // θ3 — mileage × importance
+  comfort:      1.50,   // θ4 — comfort alignment
+  experience:   1.70,   // θ5 — experience suitability (safety-critical)
+  purpose:      2.10,   // θ6 — primary purpose match
+  weight:       1.10,   // θ7 — weight compliance
+  abs:          0.90,   // θ8 — ABS present (safety utility)
+  groundClear:  0.80,   // θ9 — ground clearance proportionality
+};
+
+/**
+ * Sigmoid activation: σ(z) = 1 / (1 + e^-z)
+ */
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+/**
+ * Build the normalised feature vector for the given (bike, userPrefs) pair.
+ * Returns an object with named features (values in [0, 1]).
+ */
+function buildFeatureVector(bike, userPrefs) {
+  // f0 — Budget fit
+  const budgetRatio = bike.price / userPrefs.budget;
+  const f_budget = budgetRatio <= 1
+    ? Math.max(0, 1 - 0.3 * budgetRatio)            // within budget
+    : Math.max(0, 1 - (budgetRatio - 1) * 2.5);     // over budget: steep drop
+
+  // f1 — Power match (closer to desired → higher score)
+  const f_power = Math.max(0, 1 - Math.abs(bike.power - userPrefs.power) / 93);
+
+  // f2 — Mileage score (scales with importance)
+  const f_mileage = (bike.mileage / 70) * (userPrefs.mileageImp / 5);
+
+  // f3 — Comfort alignment
+  const f_comfort = Math.max(0, 1 - Math.abs(bike.comfort - userPrefs.comfort) / 4);
+
+  // f4 — Experience fit (being above user's level penalises hard)
+  const f_experience = bike.experience <= userPrefs.experience
+    ? 1
+    : Math.max(0, 1 - (bike.experience - userPrefs.experience) * 0.5);
+
+  // f5 — Purpose alignment
+  const f_purpose = bike.purpose.includes(userPrefs.purpose) ? 1
+    : bike.purpose.some(p => (userPrefs.relatedPurposes || []).includes(p)) ? 0.4
+    : 0.0;
+
+  // f6 — Weight compliance
+  const f_weight = bike.weight <= userPrefs.maxWeight
+    ? 1 - (bike.weight / 300) * 0.2
+    : Math.max(0, 1 - (bike.weight - userPrefs.maxWeight) / 80);
+
+  // f7 — ABS (more important the less experienced the rider)
+  const absImportance = (4 - userPrefs.experience) / 3; // 1→1.0, 2→0.67, 3→0.33
+  const f_abs = bike.abs ? 1 : 1 - absImportance * 0.6;
+
+  // f8 — Ground clearance (normalised, adventure riders value this most)
+  const f_gc = bike.groundClearance / 250;
+
+  return { f_budget, f_power, f_mileage, f_comfort, f_experience, f_purpose, f_weight, f_abs, f_gc };
+}
+
+/**
+ * Run logistic regression for a single (bike, userPrefs) pair.
+ *
+ * Returns:
+ *  {
+ *    probability: 0..1,
+ *    verdict:     "Highly Compatible" | "Likely Compatible" | "Borderline" | "Not Recommended",
+ *    confidence:  "High" | "Medium" | "Low",
+ *    features:    { name, value, contribution, weight }[],
+ *    linearScore: raw dot product before sigmoid,
+ *    bike
+ *  }
+ */
+function runLogisticRegression(bike, userPrefs) {
+  const fv = buildFeatureVector(bike, userPrefs);
+  const θ = LR_THETA;
+
+  // z = θ·x
+  const contributions = [
+    { name: "Budget Fit",          value: fv.f_budget,     weight: θ.budget,      z: θ.budget      * fv.f_budget     },
+    { name: "Power Match",         value: fv.f_power,      weight: θ.power,       z: θ.power       * fv.f_power      },
+    { name: "Mileage Score",       value: fv.f_mileage,    weight: θ.mileage,     z: θ.mileage     * fv.f_mileage    },
+    { name: "Comfort Alignment",   value: fv.f_comfort,    weight: θ.comfort,     z: θ.comfort     * fv.f_comfort    },
+    { name: "Experience Fit",      value: fv.f_experience, weight: θ.experience,  z: θ.experience  * fv.f_experience },
+    { name: "Purpose Alignment",   value: fv.f_purpose,    weight: θ.purpose,     z: θ.purpose     * fv.f_purpose    },
+    { name: "Weight Compliance",   value: fv.f_weight,     weight: θ.weight,      z: θ.weight      * fv.f_weight     },
+    { name: "ABS Safety",          value: fv.f_abs,        weight: θ.abs,         z: θ.abs         * fv.f_abs        },
+    { name: "Ground Clearance",    value: fv.f_gc,         weight: θ.groundClear, z: θ.groundClear * fv.f_gc         },
+  ];
+
+  const linearScore = θ.bias + contributions.reduce((sum, c) => sum + c.z, 0);
+  const probability  = sigmoid(linearScore);
+
+  // Max possible z (all features = 1) → used for contribution normalisation
+  const maxZ = Object.values(θ).filter((_, i) => i > 0).reduce((s, v) => s + v, 0);
+  const featuresOut = contributions.map(c => ({
+    name: c.name,
+    rawValue: c.value,
+    weight: c.weight,
+    contribution: c.z / maxZ,  // 0..1 share of maximum possible score
+  }));
+
+  let verdict, confidence;
+  if      (probability >= 0.78) { verdict = "Highly Compatible";   confidence = "High";   }
+  else if (probability >= 0.58) { verdict = "Likely Compatible";   confidence = "High";   }
+  else if (probability >= 0.40) { verdict = "Borderline";          confidence = "Medium"; }
+  else                          { verdict = "Not Recommended";     confidence = "High";   }
+
+  return { probability, verdict, confidence, features: featuresOut, linearScore, bike };
+}
+
 // Export
 window.BikeEngine = {
   BIKES,
@@ -655,5 +794,8 @@ window.BikeEngine = {
   runKNN,
   runWSM,
   computeAHPWeights,
-  AHP_MATRIX
+  AHP_MATRIX,
+  runLogisticRegression,
+  buildFeatureVector,
+  LR_THETA,
 };

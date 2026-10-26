@@ -25,6 +25,7 @@
       <a href="#lineup">Lineup</a>
       <a href="#configure">Find</a>
       <a href="#compare">Compare</a>
+      <a href="#compat">Compat</a>
       <a href="#specs">Spec sheet</a>
     </nav>
     <a class="nav__cta" href="bike_recommendation_model.pdf" download>Model PDF <span aria-hidden="true">↓</span></a>
@@ -251,6 +252,94 @@
         <button class="btn btn--primary" type="button" id="decTear">Tear it down <span aria-hidden="true">→</span></button>
         <button class="btn btn--ghost" type="button" id="decCompare">Compare with runners-up</button>
         <a class="btn btn--ghost" href="#configure">Adjust the brief</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COMPATIBILITY CHECK (Logistic Regression) ═══ -->
+  <section class="section compat" id="compat" aria-labelledby="compatTitle">
+    <header class="section__head">
+      <p class="eyebrow">Fig. 09 — Compatibility check · Logistic Regression</p>
+      <h2 class="h2" id="compatTitle">Will you<br/>like it?</h2>
+      <p class="section__lede">Pick any bike, set your preferences. The logistic regression model computes a compatibility probability — σ(θ·x) — and tells you why.</p>
+    </header>
+
+    <div class="compat__wrap">
+      <!-- ── LEFT: inputs ── -->
+      <div class="compat__inputs">
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">01</span>Choose a bike</legend>
+          <div class="compat__bike-pick">
+            <select id="compatBike" aria-label="Select bike to check compatibility">
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">02</span>Your budget <output id="cBudgetVal" for="cBudget">₹1.50L</output></legend>
+          <input type="range" id="cBudget" min="60000" max="1500000" value="150000" step="5000" />
+          <div class="ctl__scale"><span>₹60K</span><span>₹15L</span></div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">03</span>Rider experience</legend>
+          <div class="seg" id="cExpGroup" role="radiogroup" aria-label="Experience">
+            <button type="button" role="radio" class="seg__b is-on" data-value="1" aria-checked="true">Beginner</button>
+            <button type="button" role="radio" class="seg__b" data-value="2" aria-checked="false">Intermediate</button>
+            <button type="button" role="radio" class="seg__b" data-value="3" aria-checked="false">Expert</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">04</span>Primary purpose</legend>
+          <div class="seg seg--wrap" id="cPurpGroup" role="radiogroup" aria-label="Purpose">
+            <button type="button" role="radio" class="seg__b is-on" data-value="commuting" aria-checked="true">Commute</button>
+            <button type="button" role="radio" class="seg__b" data-value="touring"   aria-checked="false">Touring</button>
+            <button type="button" role="radio" class="seg__b" data-value="sports"    aria-checked="false">Sport</button>
+            <button type="button" role="radio" class="seg__b" data-value="adventure" aria-checked="false">Adventure</button>
+            <button type="button" role="radio" class="seg__b" data-value="cruiser"   aria-checked="false">Cruiser</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">05</span>Target power <output id="cPowerVal" for="cPower">20 bhp</output></legend>
+          <input type="range" id="cPower" min="7" max="100" value="20" step="1" />
+          <div class="ctl__scale"><span>7 bhp</span><span>100 bhp</span></div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">06</span>Mileage importance <output id="cMileageVal" for="cMileage">Medium</output></legend>
+          <input type="range" id="cMileage" min="1" max="5" value="3" step="1" />
+          <div class="ctl__scale"><span>Not important</span><span>Critical</span></div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">07</span>Comfort priority <output id="cComfortVal" for="cComfort">Balanced</output></legend>
+          <input type="range" id="cComfort" min="1" max="5" value="3" step="1" />
+          <div class="ctl__scale"><span>Sporty</span><span>Max comfort</span></div>
+        </fieldset>
+
+        <fieldset class="ctl">
+          <legend><span class="ctl__n">08</span>Weight limit <output id="cWeightVal" for="cWeight">≤ 180 kg</output></legend>
+          <input type="range" id="cWeight" min="100" max="300" value="180" step="5" />
+          <div class="ctl__scale"><span>100 kg</span><span>300 kg</span></div>
+        </fieldset>
+
+        <button class="btn btn--primary compat__run" id="compatRun" type="button">
+          Run Analysis <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      <!-- ── RIGHT: result panel ── -->
+      <div class="compat__result" id="compatResult" aria-live="polite">
+        <div class="compat__idle">
+          <p class="eyebrow">Awaiting input</p>
+          <p class="compat__idle-msg">Select a bike and set your preferences, then click <strong>Run Analysis</strong> to see the logistic regression output.</p>
+          <div class="compat__formula">
+            <span class="compat__formula-label">Model</span>
+            <code>P(like) = σ(θ<sub>0</sub> + θ<sub>1</sub>·budget + θ<sub>2</sub>·power + … + θ<sub>9</sub>·gc)</code>
+          </div>
+        </div>
       </div>
     </div>
   </section>

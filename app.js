@@ -574,5 +574,187 @@ document.documentElement.classList.add("js");
   $$(".section__head").forEach(el => el.classList.add("rise"));
   observeRise();
 
+  // ═══ COMPATIBILITY CHECK — Logistic Regression ═══
+  (function compatSection() {
+    const { BIKES: B, runLogisticRegression, LR_THETA } = BikeEngine;
+
+    // ── Populate bike <select> ──
+    const sel = $("#compatBike");
+    const segsOrder = ["commuter", "naked", "sports", "adventure", "cruiser"];
+    segsOrder.forEach(s => {
+      const grp = document.createElement("optgroup");
+      grp.label = SEG[s];
+      B.filter(b => b.segment === s).forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b.id; opt.textContent = b.name;
+        grp.appendChild(opt);
+      });
+      sel.appendChild(grp);
+    });
+
+    // ── Independent preference state for compat section ──
+    const cState = { budget: 150000, power: 20, mileageImp: 3, experience: 1, comfort: 3, maxWeight: 180, purpose: "commuting" };
+    const PURPOSE_MAP2 = {
+      commuting: ["commuting","sports"], touring: ["touring","adventure","cruiser"],
+      sports: ["sports","commuting"], adventure: ["adventure","touring"], cruiser: ["cruiser","touring"]
+    };
+
+    function cPrefs() {
+      return { ...cState, relatedPurposes: PURPOSE_MAP2[cState.purpose] || [] };
+    }
+
+    // sliders
+    function cSlider(id, outId, fmt, key) {
+      const el = $("#" + id), out = $("#" + outId);
+      const paint = () => el.style.setProperty("--val", ((+el.value - +el.min) / (+el.max - +el.min)) * 100 + "%");
+      el.addEventListener("input", () => { cState[key] = +el.value; out.textContent = fmt(+el.value); paint(); });
+      paint(); out.textContent = fmt(+el.value);
+    }
+    cSlider("cBudget",  "cBudgetVal",  fmtBudget,                    "budget");
+    cSlider("cPower",   "cPowerVal",   v => `${v} bhp`,              "power");
+    cSlider("cMileage", "cMileageVal", fmtMileage,                   "mileageImp");
+    cSlider("cComfort", "cComfortVal", fmtComfort,                   "comfort");
+    cSlider("cWeight",  "cWeightVal",  v => `\u2264 ${v} kg`,        "maxWeight");
+
+    // radio groups
+    function cRadio(groupId, key, cast = v => v) {
+      const g = $("#" + groupId);
+      g.addEventListener("click", e => {
+        const b = e.target.closest(".seg__b"); if (!b) return;
+        cState[key] = cast(b.dataset.value);
+        $$(".seg__b", g).forEach(x => {
+          const on = x.dataset.value === b.dataset.value;
+          x.classList.toggle("is-on", on); x.setAttribute("aria-checked", on);
+        });
+      });
+    }
+    cRadio("cExpGroup",  "experience", v => +v);
+    cRadio("cPurpGroup", "purpose");
+
+    // ── Rendering helpers ──
+    const verdictClass = { "Highly Compatible": "v-high", "Likely Compatible": "v-likely", "Borderline": "v-border", "Not Recommended": "v-nope" };
+    const verdictEmoji  = { "Highly Compatible": "✓", "Likely Compatible": "✓", "Borderline": "~", "Not Recommended": "✗" };
+
+    function pctOf(v) { return Math.round(v * 100); }
+
+    function barClass(v) {
+      if (v >= 0.55) return "bar-high";
+      if (v >= 0.30) return "bar-med";
+      return "bar-low";
+    }
+
+    function renderResult(res) {
+      const p = res.probability;
+      const pct = pctOf(p);
+      const vc = verdictClass[res.verdict];
+      // Circumference for r=34: 2π×34 ≈ 213.6 — use 220 for a slight gap at top
+      const circ = 220;
+      const offset = circ - p * circ;
+
+      // θ entries for the table
+      const thetaEntries = Object.entries(LR_THETA).map(([k, v]) => {
+        const labels = { bias:"Bias (θ₀)", budget:"Budget (θ₁)", power:"Power (θ₂)", mileage:"Mileage (θ₃)",
+          comfort:"Comfort (θ₄)", experience:"Experience (θ₅)", purpose:"Purpose (θ₆)",
+          weight:"Weight (θ₇)", abs:"ABS (θ₈)", groundClear:"Ground Clr. (θ₉)" };
+        return `<div class="compat__theta-item"><span>${esc(labels[k] || k)}</span><span>${v >= 0 ? "+" : ""}${v.toFixed(2)}</span></div>`;
+      }).join("");
+
+      // Feature rows
+      const featRows = res.features.map(f => {
+        const rv = f.rawValue;
+        const contribPct = pctOf(Math.min(f.contribution, 0.999));
+        return `<li class="compat__feat-item">
+          <span class="compat__feat-name">${esc(f.name)}</span>
+          <span class="compat__feat-bar-wrap">
+            <span class="compat__feat-bar ${barClass(rv)}" style="transform:scaleX(${rv.toFixed(3)})"></span>
+          </span>
+          <span class="compat__feat-raw">${pctOf(rv)}%</span>
+          <span class="compat__feat-contrib">${contribPct >= 0 ? "+" : ""}${contribPct}%</span>
+        </li>`;
+      }).join("");
+
+      const html = `<div class="compat__out">
+        <!-- Verdict banner -->
+        <div class="compat__verdict ${vc}">
+          <div class="compat__gauge-wrap" data-verdict="${esc(res.verdict)}" id="compatGaugeWrap">
+            <svg class="compat__gauge" viewBox="0 0 88 88" aria-hidden="true">
+              <circle class="gauge-bg"  cx="44" cy="44" r="34"/>
+              <circle class="gauge-arc" cx="44" cy="44" r="34" stroke-dashoffset="${circ}" id="compatArc"/>
+            </svg>
+            <div class="compat__gauge-pct"><span id="compatPctNum">0</span><small>%</small></div>
+          </div>
+          <div class="compat__verdict-text">
+            <p class="compat__verdict-label">${esc(verdictEmoji[res.verdict])} ${esc(res.verdict)}</p>
+            <p class="compat__verdict-sub">
+              P(like) = <b>${pct}%</b>
+              <em> · Confidence: ${res.confidence}</em>
+            </p>
+            <p class="compat__verdict-sub" style="margin-top:4px">
+              ${esc(res.bike.name)} · ${fmtPrice(res.bike.price)} · ${res.bike.power} bhp
+            </p>
+          </div>
+        </div>
+
+        <!-- Sigmoid score strip -->
+        <div class="compat__sigmoid">
+          <p class="compat__sigmoid-title">Logistic output — σ(z = ${res.linearScore.toFixed(3)})</p>
+          <div class="compat__sigmoid-track">
+            <div class="compat__sigmoid-fill" style="transform:scaleX(0)" id="compatSigFill"></div>
+          </div>
+          <div class="compat__sigmoid-meta">
+            <span>0% — Very unlikely</span>
+            <b>P = ${pct}%</b>
+            <span>100% — Definitely yes</span>
+          </div>
+        </div>
+
+        <!-- Feature breakdown -->
+        <div class="compat__features">
+          <p class="compat__features-title">Feature breakdown (9 inputs to logistic model)</p>
+          <ul class="compat__feat-list">${featRows}</ul>
+        </div>
+
+        <!-- θ weights table -->
+        <div class="compat__theta">
+          <p class="compat__theta-title">Model weights (θ vector — Logistic Regression coefficients)</p>
+          <div class="compat__theta-grid">${thetaEntries}</div>
+        </div>
+      </div>`;
+
+      const panel = $("#compatResult");
+      panel.innerHTML = html;
+
+      // Animate gauge arc after next paint
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const arc = $("#compatArc");
+          if (arc) arc.style.strokeDashoffset = offset;
+          const fill = $("#compatSigFill");
+          if (fill) fill.style.transform = `scaleX(${p.toFixed(4)})`;
+          // Count up animation
+          let start = null;
+          const duration = 900;
+          const numEl = $("#compatPctNum");
+          function step(ts) {
+            if (!start) start = ts;
+            const progress = Math.min((ts - start) / duration, 1);
+            if (numEl) numEl.textContent = Math.round(progress * pct);
+            if (progress < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        });
+      });
+    }
+
+    // ── Run on button click ──
+    $("#compatRun").addEventListener("click", () => {
+      const bikeId = +sel.value;
+      const bike = B.find(b => b.id === bikeId);
+      if (!bike) { toast("Please select a bike first"); return; }
+      const res = runLogisticRegression(bike, cPrefs());
+      renderResult(res);
+    });
+  })();
+
   run();
 })();

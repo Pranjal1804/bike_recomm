@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>MotoMatch India — Mathematical Model Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #08090b;
+    --ink2: #111316;
+    --ink3: #1a1d22;
+    --accent: #ff5a1f;
+    --good: #7ecb35;
+    --teal: #3fcfb4;
+    --yellow: #f5c842;
+    --text: #1a1d22;
+    --text2: #4a5060;
+    --border: #dde1e7;
+    --page: #f7f8fa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--page);
+    color: var(--text);
+    font: 400 13.5px/1.65 'Inter', sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: var(--ink);
+    color: #eceef0;
+    min-height: 100vh;
+    padding: 80px 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .cover__badge {
+    font: 500 10px/1 'JetBrains Mono', monospace;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 60px;
+  }
+  .cover__title {
+    font: 700 64px/.88 'Inter', sans-serif;
+    letter-spacing: -.025em;
+    max-width: 640px;
+  }
+  .cover__title em { font-style: normal; color: var(--accent); }
+  .cover__sub {
+    font: 400 20px/1.4 'Inter', sans-serif;
+    color: #a4abb4;
+    max-width: 520px;
+    margin-top: 28px;
+  }
+  .cover__meta {
+    display: flex;
+    gap: 48px;
+    font: 500 11px/1.6 'JetBrains Mono', monospace;
+    color: #7d8590;
+    letter-spacing: .08em;
+    border-top: 1px solid rgba(255,255,255,.1);
+    padding-top: 28px;
+    margin-top: auto;
+  }
+  .cover__meta strong { display: block; color: #c3c8ce; }
+
+  /* ── Pages ── */
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 72px;
+    page-break-inside: avoid;
+  }
+
+  /* ── Section header ── */
+  .fig {
+    font: 500 10px/1 'JetBrains Mono', monospace;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  h1 { font: 700 36px/.9 'Inter', sans-serif; letter-spacing: -.02em; margin-bottom: 20px; }
+  h2 { font: 700 26px/.95 'Inter', sans-serif; letter-spacing: -.015em; margin-bottom: 14px; }
+  h3 { font: 600 13px/1.3 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--text2); margin-bottom: 10px; }
+  p { margin-bottom: 12px; line-height: 1.7; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Model card ── */
+  .model-card {
+    break-inside: avoid;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .model-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .model-card__icon {
+    width: 48px; height: 48px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 20px/1 'Inter', sans-serif;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .model-card__title { flex: 1; }
+  .model-card__name {
+    font: 700 20px/.95 'Inter', sans-serif;
+    letter-spacing: -.01em;
+    margin-bottom: 4px;
+  }
+  .model-card__full {
+    font: 400 12px/1.3 'JetBrains Mono', monospace;
+    color: var(--text2);
+  }
+  .model-card__weight {
+    font: 700 28px/1 'Inter', sans-serif;
+    letter-spacing: -.02em;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .model-card__weight small {
+    display: block;
+    font: 500 10px/1 'JetBrains Mono', monospace;
+    letter-spacing: .1em;
+    color: var(--text2);
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+
+  .model-card__body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+  .model-card__col {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+  }
+  .model-card__col:last-child { border-right: 0; }
+
+  /* ── Key-value rows ── */
+  .kv { list-style: none; }
+  .kv li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .kv li:last-child { border: 0; }
+  .kv li span:first-child { color: var(--text2); flex-shrink: 0; }
+  .kv li span:last-child { font-weight: 600; text-align: right; }
+
+  /* ── Formula box ── */
+  .formula {
+    background: var(--ink2);
+    color: #c3c8ce;
+    border-radius: 4px;
+    padding: 14px 18px;
+    font: 500 13px/1.7 'JetBrains Mono', monospace;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+  .formula strong { color: var(--accent); }
+  .formula em { font-style: normal; color: #5af1c8; }
+
+  /* ── Pill tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag {
+    font: 500 10px/1 'JetBrains Mono', monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+  }
+
+  /* ── Comparison table ── */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 24px 0; }
+  .cmp-table th { background: var(--ink); color: #eceef0; padding: 10px 14px; text-align: left; font: 600 11px/1 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
+  .cmp-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .cmp-table tr:nth-child(even) td { background: #f3f4f7; }
+  .cmp-table tr:last-child td { border: 0; }
+  .cmp-table td:first-child { font-weight: 600; }
+  .yes { color: #3a9e4a; font-weight: 600; }
+  .no  { color: #aa2222; }
+  .mid { color: #996600; }
+
+  /* ── Accent colours per model ── */
+  .c-topsis    { background: #1a56db; }
+  .c-ahp       { background: #9333ea; }
+  .c-fuzzy     { background: #0891b2; }
+  .c-knn       { background: #d97706; }
+  .c-wsm       { background: #059669; }
+  .c-lr        { background: #dc2626; }
+
+  .t-topsis  { color: #1a56db; border-color: #1a56db; background: rgba(26,86,219,.06); }
+  .t-ahp     { color: #9333ea; border-color: #9333ea; background: rgba(147,51,234,.06); }
+  .t-fuzzy   { color: #0891b2; border-color: #0891b2; background: rgba(8,145,178,.06); }
+  .t-knn     { color: #d97706; border-color: #d97706; background: rgba(217,119,6,.06); }
+  .t-wsm     { color: #059669; border-color: #059669; background: rgba(5,150,105,.06); }
+  .t-lr      { color: #dc2626; border-color: #dc2626; background: rgba(220,38,38,.06); }
+
+  /* ── Divider ── */
+  hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  /* ── Ensemble bar ── */
+  .ens-bar { display: flex; gap: 2px; height: 28px; border-radius: 4px; overflow: hidden; margin: 24px 0 10px; }
+  .ens-seg { display: flex; align-items: center; justify-content: center; color: #fff; font: 700 11px/1 'JetBrains Mono', monospace; }
+
+  /* ── Page break utilities ── */
+  .pb { page-break-after: always; }
+  .no-break { break-inside: avoid; }
+
+  /* ── Print overrides ── */
+  @media print {
+    body { background: #fff; }
+    .cover { min-height: 297mm; }
+    .page { padding: 48px 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover__badge">MotoMatch India · Technical Reference · v2.0</div>
+  <div>
+    <h1 class="cover__title">Mathematical<br/><em>Models</em><br/>Reference</h1>
+    <p class="cover__sub">
+      A complete reference for all six decision models powering MotoMatch India —
+      covering what each model does, the mathematics behind it, and why it was chosen
+      for the motorcycle recommendation and compatibility pipeline.
+    </p>
+  </div>
+  <div class="cover__meta">
+    <div><strong>Models</strong>TOPSIS · AHP · Fuzzy Logic · K-NN · WSM · Logistic Regression</div>
+    <div><strong>Dataset</strong>36 real India-market bikes · 2024</div>
+    <div><strong>Edition</strong>October 2026</div>
+    <div><strong>Scope</strong>Recommendation + Compatibility Classification</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     OVERVIEW
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 01 — System overview</p>
+  <h1>Why six models?</h1>
+  <p>
+    No single algorithm captures all dimensions of a motorcycle purchase decision.
+    Different models excel at different things: ranking by similarity to an ideal,
+    weighting criteria through expert judgement, handling vague human preferences,
+    finding similar profiles, and finally classifying whether a specific bike is
+    likely to satisfy a particular rider. MotoMatch India combines five complementary
+    <strong>ranking models</strong> in a weighted ensemble, and adds a sixth
+    standalone <strong>binary classifier</strong> for compatibility checking.
+  </p>
+
+  <div class="ens-bar" style="margin-top:32px">
+    <div class="ens-seg c-topsis" style="flex:25">TOPSIS 25%</div>
+    <div class="ens-seg c-ahp"    style="flex:25">AHP 25%</div>
+    <div class="ens-seg c-fuzzy"  style="flex:20">Fuzzy 20%</div>
+    <div class="ens-seg c-knn"    style="flex:15">K-NN 15%</div>
+    <div class="ens-seg c-wsm"    style="flex:15">WSM 15%</div>
+  </div>
+  <p style="font-size:12px;color:var(--text2)">
+    Ensemble blend for the recommendation engine (Fig. 05 — "Find your machine").
+    The Logistic Regression model (Fig. 09) runs independently as a compatibility classifier.
+  </p>
+
+  <hr/>
+  <h2>Shared feature space</h2>
+  <p>Every model operates on the same 8-dimensional criterion vector derived from user preferences and bike specifications:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>#</th><th>Criterion</th><th>Source</th><th>Direction</th><th>AHP Weight</th></tr></thead>
+    <tbody>
+      <tr><td>C1</td><td>Budget fit</td><td>bike.price vs user.budget</td><td>≤ budget preferred</td><td>~29%</td></tr>
+      <tr><td>C2</td><td>Power match</td><td>bike.power vs user.power</td><td>Close to target</td><td>~10%</td></tr>
+      <tr><td>C3</td><td>Mileage score</td><td>bike.mileage × mileage importance</td><td>Higher better</td><td>~14%</td></tr>
+      <tr><td>C4</td><td>Comfort alignment</td><td>|bike.comfort − user.comfort|</td><td>Closer better</td><td>~13%</td></tr>
+      <tr><td>C5</td><td>Experience match</td><td>bike.experience ≤ user.experience</td><td>Suitable for level</td><td>~10%</td></tr>
+      <tr><td>C6</td><td>Purpose match</td><td>bike.purpose ∋ user.purpose</td><td>Tagged = 1.0</td><td>~7%</td></tr>
+      <tr><td>C7</td><td>Weight compliance</td><td>bike.weight vs user.maxWeight</td><td>Lighter preferred</td><td>~12%</td></tr>
+      <tr><td>C8</td><td>Ground clearance</td><td>bike.groundClearance / 250</td><td>Higher better</td><td>~14%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 1 — TOPSIS
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 02 — Model 1 of 6</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-topsis">T</div>
+      <div class="model-card__title">
+        <div class="model-card__name">TOPSIS</div>
+        <div class="model-card__full">Technique for Order of Preference by Similarity to Ideal Solution</div>
+      </div>
+      <div class="model-card__weight" style="color:#1a56db">25%<small>Ensemble Weight</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">A multi-criteria decision analysis (MCDA) method developed by Hwang &amp; Yoon (1981). It ranks alternatives by their geometric distance from a hypothetical ideal solution and a hypothetical worst solution.</p>
+        <div class="tags"><span class="tag t-topsis">MCDA</span><span class="tag t-topsis">Distance-based</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">For every bike, it computes two Euclidean distances in the weighted normalised criterion space: distance to the <em>ideal best</em> (D⁺) and to the <em>ideal worst</em> (D⁻). The closeness coefficient C = D⁻ / (D⁺ + D⁻) gives the final score.</p>
+        <div class="formula">
+          <strong>C<sub>i</sub></strong> = <em>D<sub>i</sub>⁻</em> / (<em>D<sub>i</sub>⁺</em> + <em>D<sub>i</sub>⁻</em>)
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">It is the most robust and widely validated MCDA method. By measuring distance to <em>both</em> best and worst ideals, it avoids the flaw of simply picking the bike closest to the best alternative. It handles conflicting criteria gracefully.</p>
+        <ul class="kv">
+          <li><span>Normalisation</span><span>Vector (L2)</span></li>
+          <li><span>Weights source</span><span>AHP eigenvector</span></li>
+          <li><span>Handles ties</span><span>Yes (geometric)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Step-by-step algorithm</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Step</th><th>Operation</th><th>Formula</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Build decision matrix X (bikes × criteria)</td><td>x<sub>ij</sub> = criterion score for bike i, criterion j</td></tr>
+      <tr><td>2</td><td>Vector normalise each column</td><td>r<sub>ij</sub> = x<sub>ij</sub> / √(Σ x<sub>kj</sub>²)</td></tr>
+      <tr><td>3</td><td>Apply AHP weights</td><td>v<sub>ij</sub> = w<sub>j</sub> · r<sub>ij</sub></td></tr>
+      <tr><td>4</td><td>Determine ideal best A⁺ and worst A⁻</td><td>A⁺ = max(v<sub>ij</sub>), A⁻ = min(v<sub>ij</sub>) per column</td></tr>
+      <tr><td>5</td><td>Compute separation measures</td><td>D<sub>i</sub>⁺ = √Σ(v<sub>ij</sub>−A⁺<sub>j</sub>)², likewise D<sub>i</sub>⁻</td></tr>
+      <tr><td>6</td><td>Rank by closeness coefficient</td><td>C<sub>i</sub> = D<sub>i</sub>⁻ / (D<sub>i</sub>⁺ + D<sub>i</sub>⁻) ∈ [0,1]</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 2 — AHP
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 03 — Model 2 of 6</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-ahp">A</div>
+      <div class="model-card__title">
+        <div class="model-card__name">AHP</div>
+        <div class="model-card__full">Analytic Hierarchy Process</div>
+      </div>
+      <div class="model-card__weight" style="color:#9333ea">25%<small>Ensemble Weight</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">A structured technique for organising and analysing complex decisions, developed by Thomas Saaty (1980). It decomposes a decision into a hierarchy and uses pairwise comparisons to derive relative criterion weights.</p>
+        <div class="tags"><span class="tag t-ahp">Pairwise</span><span class="tag t-ahp">Eigenvector</span><span class="tag t-ahp">Weight derivation</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">An 8×8 pairwise comparison matrix is constructed where each entry a<sub>ij</sub> = importance of criterion i over j on Saaty's 1–9 scale. The principal eigenvector of this matrix gives the normalised criterion weights used by TOPSIS and WSM.</p>
+        <div class="formula">
+          <strong>w</strong> = principal eigenvector of <em>A</em><br/>
+          CR = CI / RI &lt; 0.10 ✓
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">AHP provides <em>mathematically grounded, transparent weights</em>. Rather than assigning weights arbitrarily, it derives them from explicit expert pairwise judgements and verifies consistency via the Consistency Ratio (CR). If CR ≥ 0.10 the matrix must be revised.</p>
+        <ul class="kv">
+          <li><span>Matrix size</span><span>8 × 8</span></li>
+          <li><span>Scale</span><span>Saaty 1–9</span></li>
+          <li><span>CR target</span><span>&lt; 0.10</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>AHP pairwise matrix (criteria vs criteria)</h3>
+  <div class="formula" style="font-size:11.5px;overflow-x:auto">
+          Budget  Power  Mileage Comfort Exp.  Purpose Weight  GC
+Budget  [  1      3      2       2       3      5       2       1 ]
+Power   [ 1/3     1     1/2     1/2      1      2       1      1/2]
+Mileage [ 1/2     2      1       1       2      3       1      1/2]
+Comfort [ 1/2     2      1       1       2      2       1      1/2]
+Exp.    [ 1/3     1     1/2     1/2      1      2       1      1/2]
+Purpose [ 1/5    1/2    1/3     1/2     1/2     1      1/2     1/3]
+Weight  [ 1/2     1      1       1       1      2       1      1/2]
+GC      [  1      2      2       2       2      3       2       1 ]
+  </div>
+  <p style="font-size:12px;color:var(--text2)">
+    Derived weights: Budget ≈ 29%, GC ≈ 14%, Mileage ≈ 14%, Comfort ≈ 13%, Weight ≈ 12%, Experience ≈ 10%, Power ≈ 10%, Purpose ≈ 7%.
+    The AHP model score itself reuses the Weighted Sum Model with these eigenvector weights.
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 3 — FUZZY LOGIC
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 04 — Model 3 of 6</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-fuzzy">F</div>
+      <div class="model-card__title">
+        <div class="model-card__name">Fuzzy Logic</div>
+        <div class="model-card__full">Fuzzy Inference System with Trapezoidal &amp; Triangular Membership Functions</div>
+      </div>
+      <div class="model-card__weight" style="color:#0891b2">20%<small>Ensemble Weight</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">A rule-based system operating on fuzzy sets rather than crisp Boolean logic. Introduced by Zadeh (1965), it allows partial membership — a bike can be "somewhat within budget" rather than strictly in or out.</p>
+        <div class="tags"><span class="tag t-fuzzy">Mamdani</span><span class="tag t-fuzzy">Defuzzification</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">Six fuzzy rules fire for each bike (budget, power, mileage, comfort, experience, purpose). Trapezoidal and triangular membership functions convert crisp differences into fuzzy degrees of fit. A weighted centroid defuzzifies these into a single crisp score.</p>
+        <div class="formula">
+          <strong>μ_trap</strong>(x; a,b,c,d):<br/>
+          0 if x&lt;a; (x−a)/(b−a) if a≤x&lt;b;<br/>
+          1 if b≤x≤c; (d−x)/(d−c) if c&lt;x≤d
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">Human preferences are inherently vague — "I need good mileage" has no crisp boundary. Fuzzy logic captures linguistic hedges and gradual transitions that crisp scoring models miss. It's especially effective for comfort and budget proximity, where exact equality is rare.</p>
+        <ul class="kv">
+          <li><span>MF types</span><span>Trapez. + Tri.</span></li>
+          <li><span>Defuzz.</span><span>Weighted centroid</span></li>
+          <li><span>Rules</span><span>6</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Fuzzy rules &amp; membership functions</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Rule</th><th>Input</th><th>MF type</th><th>Description</th><th>Weight</th></tr></thead>
+    <tbody>
+      <tr><td>R1</td><td>Budget fitness</td><td>Trapezoidal</td><td>|bike.price − budget| / budget ∈ [0, 0.15] is "full fit"</td><td>30%</td></tr>
+      <tr><td>R2</td><td>Power match</td><td>Trapezoidal</td><td>|bike.power − desired| / desired ∈ [0, 0.20] is "perfect"</td><td>15%</td></tr>
+      <tr><td>R3</td><td>Mileage utility</td><td>Trap. / Tri.</td><td>bike.mileage / 70 scored higher when mileage importance ≥ 4</td><td>15%</td></tr>
+      <tr><td>R4</td><td>Comfort match</td><td>Trapezoidal</td><td>|bike.comfort − user.comfort| / 4 ∈ [0, 0.25] is "aligned"</td><td>15%</td></tr>
+      <tr><td>R5</td><td>Experience fit</td><td>Triangular</td><td>user.experience / bike.experience — triangular with peak at 1.0</td><td>15%</td></tr>
+      <tr><td>R6</td><td>Purpose match</td><td>Crisp binary</td><td>1.0 if tagged; 0.3 if untagged</td><td>10%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 4 — KNN
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 05 — Model 4 of 6</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-knn">K</div>
+      <div class="model-card__title">
+        <div class="model-card__name">K-Nearest Neighbours</div>
+        <div class="model-card__full">KNN Distance Similarity Scoring (k = 10)</div>
+      </div>
+      <div class="model-card__weight" style="color:#d97706">15%<small>Ensemble Weight</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">A non-parametric algorithm that classifies or ranks instances by measuring proximity to known reference points. In this usage, the user's preference profile is the "query" and each bike is a "data point" in normalised 7-D space.</p>
+        <div class="tags"><span class="tag t-knn">Non-parametric</span><span class="tag t-knn">Euclidean distance</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">Both the user preference vector and each bike's specification vector are normalised to [0, 1] across 7 dimensions (price, power, mileage, weight, comfort, experience, ground clearance). Euclidean distance is computed; score = 1 / (1 + dist).</p>
+        <div class="formula">
+          dist = √Σ(u<sub>f</sub> − b<sub>f</sub>)²<br/>
+          <strong>score</strong> = 1 / (1 + dist) + purpose_bonus
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">KNN provides a <em>holistic similarity</em> score without any explicit scoring formula — it asks "is this bike generally close to what the rider described?" rather than evaluating each criterion in isolation. It catches good all-round bikes that may not excel on any single axis.</p>
+        <ul class="kv">
+          <li><span>k value</span><span>10</span></li>
+          <li><span>Distance</span><span>Euclidean (L2)</span></li>
+          <li><span>Dimensions</span><span>7</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Normalisation ranges</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Feature</th><th>Min</th><th>Max</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Price (₹)</td><td>60,000</td><td>9,00,000</td><td>Full India dataset range</td></tr>
+      <tr><td>Power (bhp)</td><td>7</td><td>100</td><td>Splendor to CB650R</td></tr>
+      <tr><td>Mileage (kmpl)</td><td>15</td><td>70</td><td>Mapped from importance (1–5) × 14</td></tr>
+      <tr><td>Weight (kg)</td><td>100</td><td>220</td><td>Lightest to heaviest dataset bike</td></tr>
+      <tr><td>Comfort (1–5)</td><td>1</td><td>5</td><td>Sporty to touring</td></tr>
+      <tr><td>Experience (1–3)</td><td>1</td><td>3</td><td>Beginner to expert</td></tr>
+      <tr><td>Ground clearance (mm)</td><td>130</td><td>250</td><td>Ninja 400 to adventure bikes</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 5 — WSM
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 06 — Model 5 of 6</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-wsm">W</div>
+      <div class="model-card__title">
+        <div class="model-card__name">WSM</div>
+        <div class="model-card__full">Weighted Sum Model (Simple Additive Weighting)</div>
+      </div>
+      <div class="model-card__weight" style="color:#059669">15%<small>Ensemble Weight</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">The simplest and most interpretable MCDA technique. It calculates a composite score as a linear weighted sum of normalised criterion scores. Also known as Simple Additive Weighting (SAW).</p>
+        <div class="tags"><span class="tag t-wsm">Linear</span><span class="tag t-wsm">Additive</span><span class="tag t-wsm">Interpretable</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">Each bike gets a raw score on each of the 8 criteria (budget, power, mileage, comfort, experience, purpose, weight, GC). These are multiplied by AHP-derived weights and summed to produce a single scalar.</p>
+        <div class="formula">
+          <strong>S<sub>i</sub></strong> = Σ w<sub>j</sub> · s<sub>ij</sub><br/>
+          where s<sub>ij</sub> ∈ [0, 1] is the criterion score
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">WSM acts as a <em>sanity check</em> and baseline. Because it is fully transparent, the team can audit results easily. It also helps balance the ensemble: when TOPSIS and Fuzzy disagree, WSM provides a stable reference score derived from the same AHP weights.</p>
+        <ul class="kv">
+          <li><span>Complexity</span><span>O(n × m)</span></li>
+          <li><span>Weights</span><span>AHP eigenvector</span></li>
+          <li><span>Output range</span><span>[0, 1]</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>Criterion scoring functions</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Criterion</th><th>Scoring function s<sub>ij</sub></th></tr></thead>
+    <tbody>
+      <tr><td>Budget</td><td>If price ≤ budget: 1 − 0.3 × (price/budget). Else max(0, 1 − (ratio−1) × 2)</td></tr>
+      <tr><td>Power</td><td>1 − |bike.power − desired| / 100</td></tr>
+      <tr><td>Mileage</td><td>(bike.mileage / 70) × (mileageImp / 5)</td></tr>
+      <tr><td>Comfort</td><td>1 − |bike.comfort − user.comfort| / 4</td></tr>
+      <tr><td>Experience</td><td>1 if bike.exp ≤ user.exp; else max(0, 1 − (bike.exp − user.exp) × 0.4)</td></tr>
+      <tr><td>Purpose</td><td>1.0 (direct match) / 0.5 (related) / 0.1 (unrelated)</td></tr>
+      <tr><td>Weight</td><td>If ≤ limit: 1 − (weight/300) × 0.3. Else max(0, 1 − (over)/100)</td></tr>
+      <tr><td>Ground clearance</td><td>bike.groundClearance / 250</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODEL 6 — LOGISTIC REGRESSION
+══════════════════════════════════════════════════ -->
+<div class="page pb">
+  <p class="fig">Fig. 07 — Model 6 of 6 · Binary Classifier</p>
+
+  <div class="model-card">
+    <div class="model-card__head">
+      <div class="model-card__icon c-lr">LR</div>
+      <div class="model-card__title">
+        <div class="model-card__name">Logistic Regression</div>
+        <div class="model-card__full">Binary Compatibility Classifier — "Will I like this bike?"</div>
+      </div>
+      <div class="model-card__weight" style="color:#dc2626">Standalone<small>Classifier</small></div>
+    </div>
+    <div class="model-card__body">
+      <div class="model-card__col">
+        <h3>What it is</h3>
+        <p style="font-size:13px">A supervised linear classifier that models the probability of a binary outcome. Here the outcome is: "would a rider with these preferences be satisfied by this specific bike?" The sigmoid function maps a linear score to a probability in (0, 1).</p>
+        <div class="tags"><span class="tag t-lr">Classification</span><span class="tag t-lr">Sigmoid σ(z)</span><span class="tag t-lr">Probability</span></div>
+      </div>
+      <div class="model-card__col">
+        <h3>What it does</h3>
+        <p style="font-size:13px">It computes a dot-product of the θ weight vector with a 9-feature input vector built from the (rider, bike) pair, then applies the sigmoid. The output P ∈ (0,1) is interpreted as compatibility probability.</p>
+        <div class="formula">
+          z = θ₀ + θ₁·f_budget + … + θ₉·f_gc<br/>
+          <strong>P(like)</strong> = σ(z) = 1 / (1 + e<sup>−z</sup>)
+        </div>
+      </div>
+      <div class="model-card__col">
+        <h3>Why it's used</h3>
+        <p style="font-size:13px">Unlike the ranking models, Logistic Regression gives a direct yes/no answer with a calibrated probability. It enables a fundamentally different query: not "rank all bikes" but "evaluate this specific bike for me." This is the Fig. 09 "Compatibility Check" feature of the platform.</p>
+        <ul class="kv">
+          <li><span>Output type</span><span>Probability (0–1)</span></li>
+          <li><span>Features</span><span>9 normalised</span></li>
+          <li><span>Threshold</span><span>σ(z) ≥ 0.58</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3>θ weight vector — logistic regression coefficients</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Coefficient</th><th>Feature</th><th>Value</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>θ₀</td><td>Bias</td><td>−1.40</td><td>Centres the sigmoid at ~0.5 for a neutral match, so not every bike is predicted "liked"</td></tr>
+      <tr><td>θ₁</td><td>Budget Fit</td><td>+2.80</td><td>Strongest predictor — price over budget is a decisive dealbreaker for most riders</td></tr>
+      <tr><td>θ₂</td><td>Power Match</td><td>+1.20</td><td>Close power match improves satisfaction; too much or too little both reduce it</td></tr>
+      <tr><td>θ₃</td><td>Mileage Score</td><td>+1.60</td><td>Scaled by mileage importance so it matters only when the rider said it does</td></tr>
+      <tr><td>θ₄</td><td>Comfort Alignment</td><td>+1.50</td><td>Comfort mismatch is a common source of buyer regret — high weight</td></tr>
+      <tr><td>θ₅</td><td>Experience Fit</td><td>+1.70</td><td>A bike above the rider's experience level is a safety issue — weighted heavily</td></tr>
+      <tr><td>θ₆</td><td>Purpose Alignment</td><td>+2.10</td><td>Second strongest: if the bike isn't made for your use case, it rarely satisfies</td></tr>
+      <tr><td>θ₇</td><td>Weight Compliance</td><td>+1.10</td><td>Over-limit weight reduces manageability — moderate penalty</td></tr>
+      <tr><td>θ₈</td><td>ABS Safety</td><td>+0.90</td><td>Importance scales with experience: beginners penalised more for missing ABS</td></tr>
+      <tr><td>θ₉</td><td>Ground Clearance</td><td>+0.80</td><td>Relevant primarily for adventure and off-road use; lowest weight of continuous features</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:24px">Verdict thresholds</h3>
+  <table class="cmp-table">
+    <thead><tr><th>P(like) range</th><th>Verdict</th><th>Confidence</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>≥ 0.78</td><td style="color:#3a9e4a;font-weight:700">Highly Compatible</td><td>High</td><td>Strong match across all preference dimensions — very likely to satisfy</td></tr>
+      <tr><td>0.58 – 0.78</td><td style="color:#0891b2;font-weight:700">Likely Compatible</td><td>High</td><td>Good fit overall with minor compromises in one or two areas</td></tr>
+      <tr><td>0.40 – 0.58</td><td style="color:#d97706;font-weight:700">Borderline</td><td>Medium</td><td>Mixed signals — some preferences met, others are significant mismatches</td></tr>
+      <tr><td>&lt; 0.40</td><td style="color:#dc2626;font-weight:700">Not Recommended</td><td>High</td><td>Multiple critical mismatches against stated preferences</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     COMPARISON TABLE
+══════════════════════════════════════════════════ -->
+<div class="page">
+  <p class="fig">Fig. 08 — Model comparison</p>
+  <h1>All six models at a glance</h1>
+
+  <table class="cmp-table" style="font-size:12.5px">
+    <thead>
+      <tr>
+        <th>Model</th><th>Type</th><th>Output</th><th>Uses AHP weights</th>
+        <th>Handles uncertainty</th><th>Interpretable</th><th>Role in system</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span style="color:#1a56db;font-weight:700">TOPSIS</span></td>
+        <td>MCDA ranking</td>
+        <td>Closeness coeff. [0,1]</td>
+        <td class="yes">Yes</td><td class="no">No</td><td class="yes">Yes</td>
+        <td>Primary ranker — distance to ideal</td>
+      </tr>
+      <tr>
+        <td><span style="color:#9333ea;font-weight:700">AHP</span></td>
+        <td>Weight derivation + ranking</td>
+        <td>Eigenvector weights + WSM score</td>
+        <td class="yes">Self</td><td class="no">No</td><td class="yes">Yes</td>
+        <td>Derives weights; secondary scoring via WSM</td>
+      </tr>
+      <tr>
+        <td><span style="color:#0891b2;font-weight:700">Fuzzy Logic</span></td>
+        <td>Rule-based inference</td>
+        <td>Defuzzified score [0,1]</td>
+        <td class="no">No</td><td class="yes">Yes</td><td class="mid">Partial</td>
+        <td>Captures linguistic / vague preferences</td>
+      </tr>
+      <tr>
+        <td><span style="color:#d97706;font-weight:700">K-NN</span></td>
+        <td>Distance similarity</td>
+        <td>Inverse distance score</td>
+        <td class="no">No</td><td class="no">No</td><td class="mid">Partial</td>
+        <td>Holistic similarity in 7-D feature space</td>
+      </tr>
+      <tr>
+        <td><span style="color:#059669;font-weight:700">WSM</span></td>
+        <td>Linear additive</td>
+        <td>Weighted sum [0,1]</td>
+        <td class="yes">Yes</td><td class="no">No</td><td class="yes">Yes</td>
+        <td>Baseline / sanity check; fully auditable</td>
+      </tr>
+      <tr>
+        <td><span style="color:#dc2626;font-weight:700">Logistic Regression</span></td>
+        <td>Binary classifier</td>
+        <td>Probability P(like) ∈ (0,1)</td>
+        <td class="no">No</td><td class="no">No</td><td class="yes">Yes</td>
+        <td>Point query: "will I like this specific bike?"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr/>
+  <h2>Ensemble design rationale</h2>
+  <p>
+    The five ranking models are blended with the weights <strong>TOPSIS 25% + AHP 25% + Fuzzy 20% + K-NN 15% + WSM 15%</strong>.
+    TOPSIS and AHP receive the highest weights because they are the most theoretically grounded. Fuzzy Logic receives 20% because
+    human preference data is inherently imprecise. K-NN and WSM act as stabilisers and receive lower weights to prevent any
+    individual model's quirks from dominating the ranking.
+  </p>
+  <p>
+    All five model scores are <strong>min-max normalised</strong> across the candidate field before blending, ensuring no model
+    dominates simply due to a different output scale.
+  </p>
+  <p>
+    The <strong>Logistic Regression</strong> model sits entirely outside the ensemble. It is activated only when the user
+    explicitly selects a specific bike and asks for a compatibility verdict — a fundamentally different query from "rank all
+    bikes." Its θ weights were calibrated to reflect the same AHP criterion priorities and are verifiable in the platform's
+    Fig. 09 result panel.
+  </p>
+
+  <hr style="margin-top:48px"/>
+  <p style="font:400 11px/1.5 'JetBrains Mono',monospace;color:var(--text2);text-align:center">
+    MotoMatch India · Mathematical Models Reference · v2.0 · October 2026<br/>
+    Dataset: 36 India-market motorcycles · Sources: BikeWale, ZigWheels, manufacturer sites (2024)
+  </p>
+</div>
+
+</body>
+</html>
